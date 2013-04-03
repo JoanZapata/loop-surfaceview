@@ -22,7 +22,7 @@ public final class LoopSurfaceView extends SurfaceView {
     private InnerThread innerThread;
 
     @SuppressWarnings("unused")
-    private LoopSurfaceViewAdapter adapter;
+    private LoopAdapter adapter;
 
     public LoopSurfaceView(Context context) {
         super(context);
@@ -59,7 +59,7 @@ public final class LoopSurfaceView extends SurfaceView {
     }
 
     /** Set the adapter for this surface view. */
-    public void setAdapter(LoopSurfaceViewAdapter adapter) {
+    public void setAdapter(LoopAdapter adapter) {
         this.adapter = adapter;
     }
 

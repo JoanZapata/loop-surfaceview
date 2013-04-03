@@ -5,7 +5,7 @@ import java.util.List;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
-public interface LoopSurfaceViewAdapter {
+public interface LoopAdapter {
 
     List<DrawableObject> getDrawableObjects();
     
