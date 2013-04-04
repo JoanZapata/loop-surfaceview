@@ -1,6 +1,9 @@
 package com.android.looper;
 
+import java.util.List;
+
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -9,8 +12,6 @@ import android.view.SurfaceView;
  * LoopSurfaceView is a final SurfaceView. You put it in your layout and use the
  * setAdapter(LoopSurfaceViewAdapter) method to override methods that is your
  * concern, like draw().
- * 
- * 
  * 
  * @author JoanZap
  * 
@@ -21,7 +22,6 @@ public final class LoopSurfaceView extends SurfaceView {
 
     private InnerThread innerThread;
 
-    @SuppressWarnings("unused")
     private LoopAdapter adapter;
 
     public LoopSurfaceView(Context context) {
@@ -36,8 +36,16 @@ public final class LoopSurfaceView extends SurfaceView {
         super(context, attrs, defStyle);
     }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        // TODO
+    }
+
     /** Start the update/draw loop. */
     public void play() {
+
+        if (adapter == null)
+            throw new IllegalArgumentException("Can't run without adapter.");
 
         // If the thread is running the surface view has been started before
         // and has never been stopped.
@@ -63,19 +71,38 @@ public final class LoopSurfaceView extends SurfaceView {
         this.adapter = adapter;
     }
 
-    private static class InnerThread extends Thread {
+    private class InnerThread extends Thread {
 
         private volatile boolean run = true;
 
         @Override
         public void run() {
             while (run) {
+
+                Canvas canvas = null;
+
                 try {
-                    Thread.sleep(2000);
-                    Log.i(TAG, "TEMP. Refresh.");
+                    canvas = getHolder().lockCanvas();
+                    if (canvas != null) {
+                        adapter.update(0);
+                        adapter.drawBackground(canvas);
+                        renderObjects(adapter.getDrawableObjects(), canvas);
+                    }
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     Log.e(TAG, "Interrupted while sleeping.", e);
+
+                } finally {
+                    if (canvas != null) {
+                        getHolder().unlockCanvasAndPost(canvas);
+                    }
                 }
+            }
+        }
+
+        private void renderObjects(List<DrawableObject> drawableObjects, Canvas canvas) {
+            for (DrawableObject drawableObject : drawableObjects) {
+                drawableObject.draw(canvas);
             }
         }
 
